@@ -1,3 +1,5 @@
+*.png
+*.pdf
 *.fa
 *.fa.*
 *.fastq
@@ -7,5 +9,5 @@
 *.sam
 __pycache__/
 .DS_Store
-*.png
-*.pdf
+# 过滤模拟生成的大型中间数据
+data/raw/
