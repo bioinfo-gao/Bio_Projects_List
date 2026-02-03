@@ -1,0 +1,11 @@
+*.fa
+*.fa.*
+*.fastq
+*.fastq.gz
+*.bam
+*.bai
+*.sam
+__pycache__/
+.DS_Store
+*.png
+*.pdf
