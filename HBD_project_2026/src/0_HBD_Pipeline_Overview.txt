@@ -1,0 +1,38 @@
+HBD 流程总纲 (Pipeline Overview)
+我们将整个流程分为 4 个标准化步骤：
+
+数据模拟 (Simulation): 使用 Python 生成 1000 条包含 6bp UMI、GGG 锚点及随机断裂位点的 Fastq 数据。
+
+环境准备与比对 (Alignment): 使用 BWA 将数据比对到人类基因组，产生包含物理坐标的 BAM 文件。
+
+HBD 核心算法 (Deduplication): 使用 Python 调用 pysam，结合“UMI + 染色体 + 起始坐标 + 片段长度”进行分子去重。
+
+结果定量与可视化 (Reporting): 使用 R 语言绘制分子家族分布图，直观展示去重效果。
+
+
+第一步：模拟 HBD Fastq 数据 (Python)
+这段脚本会生成 1000 条 Read，并刻意制造 15% 的 PCR 重复（即相同的 UMI 和坐标）。
+
+第二步：处理 UMI 并执行 BWA 比对 (Bash)
+在 Linux 下直接调用命令行工具，这是生信分析的标准做法。
+
+第三步：HBD 核心去重算法 (Python)
+使用 pysam 识别物理指纹。
+
+第四步：统计与可视化 (R 语言)
+使用 R 展示去重后的数据质量。
+
+######
+只需要依次执行：
+
+# conda activate /home/gao/micromamba/envs/R44。
+
+python 01_sim_data.py
+
+bash 02_align.sh
+
+python 03_hbd_dedup.py
+
+Rscript 04_plot_results.R
+
+也可以把这四步整合进一个“一键运行”的 master_pipeline.sh 脚本

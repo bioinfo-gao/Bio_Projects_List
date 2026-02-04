@@ -11,3 +11,7 @@ __pycache__/
 .DS_Store
 # 过滤模拟生成的大型中间数据
 data/raw/
+raw_data/
+temp/
+tmp/
+# 过滤结果文件夹

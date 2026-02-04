@@ -1,0 +1,6 @@
+# 这个只是HBD 项目的.gitignore文件
+*.fastq
+*.fq
+*.bam
+*.bai
+*.fa*
