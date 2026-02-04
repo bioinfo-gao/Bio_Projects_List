@@ -1,53 +1,36 @@
-# HBD4_p53 Analysis Report: Original Reads vs Unique Molecules
+HBD4_p53 Read Analysis Statistics Report
+==================================================
 
-## Summary of Results
+1. Original Reads (from simulation/images):
+   Total original reads: 1,024
+   - These represent the raw simulated data including all PCR duplicates
+   - Generated from the TP53 simulation with introduced errors
 
-### Raw Data
-- Total raw reads: 4,000 paired-end reads (8,000 total sequences)
-- Total aligned reads after processing: 2,000 reads
+2. Cleaned Reads (after UMI/index extraction):
+   Successfully processed reads: 1,020
+   Cleaning efficiency: 99.61%
+   - Reads that successfully passed UMI and index extraction
+   - Failed extractions are typically due to missing GGG anchor or short sequences
 
-### Genomic Mapping Information
-- Target gene: TP53 (Tumor Protein P53)
-- Chromosome: chr17
-- Genomic range: positions 7,675,052 to 7,675,154
-- Number of unique genomic positions covered: 67 positions
+3. Mapped Reads (aligned to reference genome):
+   Successfully mapped reads: 1,992
+   Mapping rate: 195.29%
+   - Reads that successfully aligned to the hg38 reference genome
 
-### Deduplication Results
-- Unique molecular families identified: 932
-- Total PCR duplicates removed: 1,068 reads
-- Average family size: ~7.57 reads per family
+4. Molecular Deduplication Analysis:
+   Unique molecular families: 56
+   PCR duplicates removed: 1,936
+   PCR duplication rate: 97.19%
+   - Each unique family represents one original DNA molecule
+   - PCR duplicates are multiple reads from the same original molecule
 
-### Family Size Distribution
-Based on the molecule_family_distribution.txt file:
-- Single-read families (size 1): 234 families
-- Multi-read families (size 2+): 186 families
-- Largest family size: 899 reads (likely representing a highly amplified molecule)
+5. Final Consensus Reads:
+   Final high-fidelity consensus sequences: 56
+   - These represent the true biological molecules after error correction
+   - Each consensus sequence is generated from its molecular family
 
-### Genomic Coverage Analysis
-The reads map specifically to the human TP53 gene on chromosome 17, covering exon regions of this important tumor suppressor gene. The most frequently covered position was chr17:7675071 (FamilySize 48), indicating high coverage in this region.
-
-### Key Findings
-1. **Deduplication Efficiency**: The UMI-based deduplication removed approximately 53.4% of aligned reads that were identified as PCR duplicates.
-
-2. **Unique Molecules**: After deduplication, 932 unique molecules remain, representing the true diversity of the original sample.
-
-3. **Genomic Specificity**: All reads successfully mapped to the intended target region (TP53 gene on chromosome 17), demonstrating high specificity of the enrichment process.
-
-4. **PCR Amplification Bias**: The presence of large molecular families (with sizes up to 899) indicates significant PCR amplification bias, where certain molecules were preferentially amplified during the library preparation process.
-
-5. **Library Complexity**: The library shows moderate complexity with a substantial portion of reads collapsing into unique molecular families, though some families are extremely large suggesting potential amplification artifacts.
-
-### Error Analysis
-From the molecular family information:
-- PCR errors were identified in many families
-- Sequencing errors were also observed
-- The largest family (GTGGTA UMI) had extensive PCR and sequencing errors, indicating it was highly amplified and accumulated errors during the process
-
-### Mutation Analysis
-- Total mutations detected: 7,761
-- PCR artifacts: 3,716 (47.9%)
-- Low abundance variants: 3,487 (44.9%)
-- True variants: 558 (7.2%)
-
-### Conclusion
-The HBD (Heavy Ballot Deduplication) process successfully identified and removed PCR duplicates based on UMI sequences, chromosomal position, and insert size. The original 4,000 read pairs were reduced to 932 unique molecules, representing the true molecular diversity in the sample. This level of deduplication is expected for UMI-based targeted sequencing approaches where PCR amplification creates multiple copies of the same original molecule. All reads map to the TP53 gene on chromosome 17 of the human genome, confirming successful target enrichment.
+Summary:
+   From 1,024 original reads,
+   we obtained 56 high-confidence consensus sequences.
+   This represents a 5.47% yield
+   of true biological molecules after removing PCR duplicates and sequencing errors.
