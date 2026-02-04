@@ -1,0 +1,55 @@
+# Explanation of Variant Types in HBD Analysis
+
+## true_variant
+- Definition: Real biological variants that exist in the original DNA/RNA sample
+- Characteristics:
+  - Represent genuine mutations present in the patient's genome
+  - Typically show consistent frequencies across multiple sequencing reads
+  - Often found at moderate to high frequencies (e.g., 20-100% within a molecular family)
+  - These are the variants of clinical interest for diagnostic purposes
+  - May represent disease-causing mutations or polymorphisms
+
+## low_abundance_variant
+- Definition: Rare biological variants that exist at low levels in the original sample
+- Characteristics:
+  - Genuine biological variants but present at very low abundance (typically <5%)
+  - May represent rare subclones, early mutations, or variants in a small subset of cells
+  - Could indicate early-stage disease, minimal residual disease, or rare genetic variants
+  - Require careful validation due to their low frequency
+  - Distinguished from sequencing errors by their reproducibility across reads
+
+## PCR_artifact
+- Definition: Errors introduced during the Polymerase Chain Reaction (PCR) amplification process
+- Two main categories based on timing of occurrence:
+
+### Early PCR Artifacts (First Round of Amplification)
+- Occur during the initial rounds of PCR amplification
+- Characteristics:
+  - Show high consistency within a molecular family (often 50-100% frequency)
+  - Represent errors that got propagated to many copies early in the amplification process
+  - Appear as consistent variants within a single UMI family
+  - More likely to be mistaken for true biological variants
+
+### Late PCR Artifacts (Later Rounds of Amplification)
+- Occur during later rounds of PCR amplification
+- Characteristics:
+  - Show lower consistency within a molecular family (often <25-30% frequency)
+  - Represent errors that occurred in only a few molecules later in amplification
+  - Appear as inconsistent variants within a UMI family
+  - Easier to distinguish from true variants due to low frequency
+
+## Distinguishing Features
+| Variant Type | Frequency Range | Consistency | Biological Relevance |
+|--------------|-----------------|-------------|----------------------|
+| true_variant | Variable (5%-100%) | High within families | High |
+| low_abundance_variant | <5% | Moderate to High | High (if validated) |
+| PCR_artifact (early) | 25%-100% | High | None |
+| PCR_artifact (late) | <25% | Low | None |
+
+## Detection Strategy
+The HBD (Heavy Ballot Deduplication) method uses UMI (Unique Molecular Identifier) sequences to:
+1. Group reads by their original molecule of origin
+2. Compare sequences within each UMI family
+3. Identify consistent variants (likely true variants)
+4. Identify inconsistent variants (likely PCR artifacts)
+5. Apply frequency thresholds to distinguish between biological variants and artifacts
