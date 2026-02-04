@@ -15,3 +15,8 @@ raw_data/
 temp/
 tmp/
 # 过滤结果文件夹
+*.fastq
+*.fq
+*.bam
+*.bai
+*.fa*
