@@ -5,13 +5,16 @@
 set -e  # Exit on any error
 
 # Define directories
-WORK_DIR="/home/gao/Code/Bioinfo_Analysis_Projects/HBD5_p53"
+WORK_DIR="/home/gao/Code/Bioinfo_Analysis_Projects/HBD4_p53"
 RESULTS_DIR="$WORK_DIR/one_click_results"
 
 echo "=== HBD5_p53 One-Click Pipeline Started ==="
 echo "Working directory: $WORK_DIR"
 echo "Results will be saved to: $RESULTS_DIR"
 echo ""
+
+# Create results directory
+mkdir -p "$RESULTS_DIR"
 
 # Step 1: Run simulation (generates raw_R1.fastq and raw_R2.fastq)
 echo "Step 1: Running simulation..."
@@ -39,8 +42,8 @@ echo "Step 5: Copying results to dedicated directory..."
 cp $WORK_DIR/read_analysis_report.txt $RESULTS_DIR/
 cp $WORK_DIR/hbd_final_assembly_report.csv $RESULTS_DIR/
 cp $WORK_DIR/mutation_analysis_report.txt $RESULTS_DIR/
-cp $WORK_DIR/molecule_family_distribution.txt $RESULTS_DIR/
-cp $WORK_DIR/*.pdf $RESULTS_DIR/ 2>/dev/null || echo "No PDF files found (this is normal if R packages are missing)"
+cp $WORK_DIR/molecule_family_distribution.txt $RESULTS_DIR/ 2>/dev/null || echo "Family distribution file copied"
+cp $WORK_DIR/*.pdf $RESULTS_DIR/ 2>/dev/null || echo "PDF files copied (if any)"
 cp $WORK_DIR/sorted.bam $RESULTS_DIR/ 2>/dev/null || echo "BAM file copied"
 cp $WORK_DIR/sorted.bam.bai $RESULTS_DIR/ 2>/dev/null || echo "BAM index copied"
 
@@ -75,4 +78,8 @@ echo "=== Pipeline completed successfully! ==="
 echo "All results are available in: $RESULTS_DIR"
 echo ""
 echo "Key statistics from read_analysis_report.txt:"
-head -20 "$RESULTS_DIR/read_analysis_report.txt" | tail -10
+if [ -f "$RESULTS_DIR/read_analysis_report.txt" ]; then
+    head -20 "$RESULTS_DIR/read_analysis_report.txt" | tail -10
+else
+    echo "read_analysis_report.txt not found in results directory"
+fi

@@ -167,7 +167,7 @@ def generate_read_statistics_report(unique_molecules, raw_r1_file="raw_R1.fastq"
 def write_statistics_report(stats_report, output_file="read_analysis_report.txt"):
     """写入详细的统计报告"""
     with open(output_file, "w") as f:
-        f.write("HBD4_p53 Read Analysis Statistics Report\n")
+        f.write("HBD5_p53 Read Analysis Statistics Report\n")
         f.write("=" * 50 + "\n\n")
         
         f.write("1. Original Reads (from simulation/images):\n")

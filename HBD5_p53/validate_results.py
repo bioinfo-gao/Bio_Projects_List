@@ -32,7 +32,7 @@ def read_statistics_file(filepath):
 
 def validate_pipeline():
     """Validate that the pipeline produced correct results"""
-    print("=== HBD4_p53 Pipeline Validation ===")
+    print("=== HBD5_p53 Pipeline Validation ===")
     
     # Read main results
     main_stats = read_statistics_file("read_analysis_report.txt")

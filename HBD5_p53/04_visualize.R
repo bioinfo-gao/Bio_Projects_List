@@ -131,7 +131,7 @@ ggsave("mutation_counts_vs_family_size.pdf", p6)
 
 # 读取并显示详细的统计报告
 cat("\n" %!% "=".rep(80) %!% "\n")
-cat("HBD4_p53 DETAILED READ STATISTICS REPORT\n")
+cat("HBD5_p53 DETAILED READ STATISTICS REPORT\n")
 cat("=".rep(80) %!% "\n\n")
 
 # Try to read the statistics report
