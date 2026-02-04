@@ -1,7 +1,6 @@
 # 04_visualize.R
 library(ggplot2)
 library(dplyr)
-library(tidyr)
 
 # 读取HBD组装结果
 df <- read.csv("hbd_final_assembly_report.csv")
@@ -40,21 +39,21 @@ p2 <- ggplot(family_dist, aes(x=FamilySize, y=Count)) +
 
 ggsave("molecule_family_distribution_plot.pdf", p2)
 
-# 新增：详细的错误类型分析可视化
+# 新增：突变类型分析可视化
 # 读取突变分析报告
 mut_df <- read.table("mutation_analysis_report.txt", header=TRUE, sep="\t")
 
-# 按详细的突变类型统计
+# 按突变类型统计
 mut_summary <- mut_df %>%
   group_by(Type) %>%
   summarise(Count = n())
 
-# 绘制详细的突变类型饼图
+# 绘制突变类型饼图
 p3 <- ggplot(mut_summary, aes(x="", y=Count, fill=Type)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0) +
   theme_void() +
-  labs(title="Detailed Mutation Type Distribution\n(TP53 Gene - Human Genome chr17)") +
+  labs(title="Mutation Type Distribution\n(TP53 Gene - Human Genome chr17)") +
   theme(plot.title = element_text(hjust=0.5)) +
   geom_text(aes(label = paste0(Type, "\n", Count, " (", round(Count/sum(Count)*100, 1), "%)")),
             position = position_stack(vjust = 0.5)) +
@@ -62,7 +61,7 @@ p3 <- ggplot(mut_summary, aes(x="", y=Count, fill=Type)) +
            label="Genomic Location: chr17:7675052-7675154", hjust=0.5, vjust=0,
            size=3, color="gray50") +
   annotate("text", x=0.5, y=-max(mut_summary$Count, na.rm=TRUE)*0.8,
-           label="Legend:\n- low_frequency_spontaneous_mutation: True biological variants\n- PCR_first_amplification_error: Early PCR errors (high frequency)\n- PCR_later_amplification_error: Late PCR errors (low frequency)",
+           label="Legend:\n- true_variant: Real biological variants\n- low_abundance_variant: Rare biological variants\n- PCR_artifact: Errors introduced during PCR amplification",
            hjust=0.5, vjust=0, size=2.5, color="black")
 
 ggsave("mutation_type_distribution.pdf", p3)
@@ -72,7 +71,7 @@ p4 <- ggplot(mut_df, aes(x=Frequency, fill=Type)) +
   geom_histogram(bins=30, alpha=0.7) +
   facet_wrap(~Type, scales="free_y") +
   theme_minimal() +
-  labs(title="Distribution of Mutation Frequencies by Detailed Type\n(TP53 Gene - Human Genome chr17)",
+  labs(title="Distribution of Mutation Frequencies by Type\n(TP53 Gene - Human Genome chr17)",
        x="Mutation Frequency", y="Count") +
   annotate("text", x=0.8, y=Inf,
            label="Genomic Region: chr17:7675052-7675154", hjust=1, vjust=1,
@@ -80,17 +79,23 @@ p4 <- ggplot(mut_df, aes(x=Frequency, fill=Type)) +
 
 ggsave("mutation_frequency_distribution.pdf", p4)
 
-# 新增：PCR错误模式分析图 - 区分第一次和后续扩增错误
+# 新增：PCR错误模式分析图
 # 创建一个包含PCR错误特征的数据框
-pcr_error_analysis <- mut_df[mut_df$Type %in% c("PCR_first_amplification_error", "PCR_later_amplification_error"), ]
+pcr_error_analysis <- mut_df[mut_df$Type == "PCR_artifact", ]
 
-# 绘制PCR错误类型对比图
-p7 <- ggplot(pcr_error_analysis, aes(x=Type, fill=Type)) +
+# 添加错误频率分类
+pcr_error_analysis$frequency_category <- ifelse(pcr_error_analysis$Frequency >= 0.75, "High Frequency (>75%)",
+                                      ifelse(pcr_error_analysis$Frequency >= 0.50, "Medium Frequency (50-75%)",
+                                      ifelse(pcr_error_analysis$Frequency >= 0.25, "Low Frequency (25-50%)",
+                                      "Very Low Frequency (<25%)")))
+
+# 绘制PCR错误频率分布图
+p7 <- ggplot(pcr_error_analysis, aes(x=frequency_category, fill=frequency_category)) +
   geom_bar(alpha=0.7) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(title="PCR Error Types Comparison\n(First vs Later Amplification Errors)",
-       x="PCR Error Type", y="Count of PCR Errors") +
+  labs(title="PCR Artifact Distribution by Frequency Category\n(High frequency suggests early PCR errors,\nlow frequency suggests late PCR errors)",
+       x="PCR Error Frequency Category", y="Count of PCR Artifacts") +
   annotate("text", x=Inf, y=Inf,
            label="Genomic Region: chr17:7675052-7675154\nGene: TP53", hjust=1, vjust=1,
            size=3, color="gray50")
@@ -111,8 +116,7 @@ ggsave("wildtype_ratio_vs_family_size.pdf", p5)
 
 # 绘制各类突变数量与家族大小的关系
 df_long <- df %>%
-  select(Pos, FamilySize, LowFreqSpontaneous, PCRFirstErrors, PCRLaterErrors) %>%
-  rename(LowFreqMutations = LowFreqSpontaneous, HighFreqMutations = PCRFirstErrors, PCRArtifacts = PCRLaterErrors) %>%
+  select(Pos, FamilySize, LowFreqMutations, HighFreqMutations, PCRArtifacts) %>%
   tidyr::pivot_longer(cols = c(LowFreqMutations, HighFreqMutations, PCRArtifacts),
                       names_to = "MutationType",
                       values_to = "MutationCount")
@@ -129,29 +133,13 @@ p6 <- ggplot(df_long, aes(x=FamilySize, y=MutationCount, color=MutationType)) +
 
 ggsave("mutation_counts_vs_family_size.pdf", p6)
 
-# 读取并显示详细的统计报告
-cat("\n" %!% "=".rep(80) %!% "\n")
-cat("HBD4_p53 DETAILED READ STATISTICS REPORT\n")
-cat("=".rep(80) %!% "\n\n")
-
-# Try to read the statistics report
-stats_file <- "read_analysis_report.txt"
-if (file.exists(stats_file)) {
-  stats_lines <- readLines(stats_file)
-  for (line in stats_lines) {
-    cat(line, "\n")
-  }
-} else {
-  cat("Statistics report file not found. Please run 03_hbd_assembly.py first.\n")
-}
-
 # 输出增强版统计摘要
 # Convert columns to numeric where needed
 df$ReadCount <- as.numeric(df$ReadCount)
 df$WildTypeRatio <- as.numeric(df$WildTypeRatio)
 df$FamilySize <- as.numeric(df$FamilySize)
 
-cat("\nEnhanced Analysis Summary:\n")
+cat("Enhanced Analysis Summary:\n")
 cat("Total number of unique molecules:", nrow(df), "\n")
 cat("Average reads per family:", round(mean(df$ReadCount, na.rm=TRUE), 2), "\n")
 cat("Median reads per family:", median(df$ReadCount, na.rm=TRUE), "\n")
@@ -161,7 +149,7 @@ cat("Target Gene: TP53 (Tumor Protein P53)\n")
 cat("Chromosome: chr17\n")
 cat("Genomic Range: 7,675,052 to 7,675,154\n")
 cat("Number of unique genomic positions covered: 67 positions\n")
-cat("\nDetailed Mutation Analysis:\n")
+cat("\nMutation Analysis:\n")
 cat("Total mutations detected:", nrow(mut_df), "\n")
 for (i in 1:nrow(mut_summary)) {
   cat(sprintf("%s: %d (%.1f%%)\n",
@@ -170,7 +158,3 @@ for (i in 1:nrow(mut_summary)) {
               mut_summary$Count[i]/nrow(mut_df)*100))
 }
 cat("Average wild-type ratio:", round(mean(df$WildTypeRatio, na.rm=TRUE), 3), "\n")
-cat("\nError Classification Summary:\n")
-cat("- Low frequency spontaneous mutations: True biological variants\n")
-cat("- PCR first amplification errors: Early PCR errors (high frequency in family)\n")
-cat("- PCR later amplification errors: Late PCR errors (low frequency in family)\n")
